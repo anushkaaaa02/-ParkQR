@@ -1,0 +1,193 @@
+/**
+ * ParkQR - Component Styles
+ * Header, Buttons, Forms, Cards, Tables, Toasts, Badges, Screens
+ */
+
+/* Navigation Header */
+header {
+    background: rgba(18, 23, 25, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: none;
+}
+
+.header-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.brand-logo i {
+    color: var(--accent-red);
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 8px var(--red-glow));
+}
+
+.user-nav-profile {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.role-badge-tag {
+    padding: 0.45rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.role-badge-tag.user { background: var(--mint-light); color: var(--accent-mint); border: 1px solid rgba(79, 168, 155, 0.3); }
+.role-badge-tag.staff { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.role-badge-tag.admin { background: var(--red-glow); color: var(--accent-red); border: 1px solid var(--border-active); }
+
+/* Buttons */
+.btn-smooth {
+    position: relative;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.85rem 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    transition: var(--transition-smooth);
+    overflow: hidden;
+}
+
+.btn-smooth:active {
+    transform: scale(0.98);
+}
+
+.btn-red {
+    background: var(--accent-red);
+    color: #fff;
+    box-shadow: 0 4px 20px var(--red-glow);
+}
+
+.btn-red:hover {
+    background: #ff2a30;
+    box-shadow: 0 6px 25px rgba(230, 35, 40, 0.45);
+    transform: translateY(-2px);
+}
+
+.btn-mint {
+    background: var(--accent-mint);
+    color: #0a0d0e;
+    box-shadow: 0 4px 20px rgba(79, 168, 155, 0.25);
+}
+
+.btn-mint:hover {
+    background: #5bbcad;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.btn-outline:hover {
+    border-color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Screen View Animations */
+.screen-view {
+    display: none;
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.screen-view.active {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Form Controls */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition-smooth);
+}
+
+.form-control:focus {
+    border-color: var(--accent-mint);
+    box-shadow: 0 0 12px rgba(79, 168, 155, 0.25);
+}
+
+/* Table */
+.table-responsive { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; }
+.table th { background: rgba(0, 0, 0, 0.4); padding: 0.9rem 1rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+.table td { padding: 1rem; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+
+/* Toast Popup */
+.toast-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 9999;
+}
+
+.toast {
+    background: var(--bg-card);
+    color: var(--text-main);
+    border: 1px solid var(--accent-mint);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    margin-top: 0.5rem;
+    display: flex; align-items: center; gap: 0.75rem; font-weight: 600;
+    animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}

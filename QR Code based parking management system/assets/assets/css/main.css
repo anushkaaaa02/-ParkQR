@@ -1,0 +1,7 @@
+/**
+ * ParkQR - Main CSS Bundle Entry
+ */
+@import url('base.css');
+@import url('components.css');
+@import url('portals.css');
+@import url('workflow.css');

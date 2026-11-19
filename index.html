@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkQR - Automotive Smart Parking System</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Syne + Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- QRCode JS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- HTML5 QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/main.css">
+    <!-- Preload local parking background for immediate render -->
+    <link rel="preload" as="image" href="assets/img/parking-bg.jpg">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header id="main-header">
+        <div class="header-container">
+            <a href="#" class="brand-logo brand-font" onclick="location.reload()">
+                <i class="fa-solid fa-qrcode"></i>
+                <span>ParkQR</span>
+            </a>
+
+            <div class="user-nav-profile">
+                <span id="nav-phone-display" style="font-weight: 700; font-size: 0.9rem; color: var(--accent-mint);">@alex</span>
+                <span id="nav-role-badge" class="role-badge-tag user">
+                    <i class="fa-solid fa-car"></i> Customer
+                </span>
+                <button class="btn-smooth btn-outline" style="padding: 0.5rem 0.9rem; font-size: 0.8rem;" onclick="performLogout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- STEP 1: ROLE SELECTOR -->
+        <div id="screen-role-select" class="screen-view auth-wrapper active">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title brand-font">SMART PARKING</h1>
+                    <p class="auth-subtitle">Select your portal type to proceed</p>
+                </div>
+
+                <div class="role-selector-grid">
+                    <div class="role-option-card" onclick="selectRole('user')">
+                        <div class="role-icon-box customer"><i class="fa-solid fa-car-side"></i></div>
+                        <div class="role-info-text">
+                            <h4>1. Customer / User Portal</h4>
+                            <p>Request slot, generate session QR & make online payment.</p>
+                        </div>
+                    </div>
+
+                    <div class="role-option-card" onclick="selectRole('staff')">
+                        <div class="role-icon-box staff"><i class="fa-solid fa-user-shield"></i></div>
+                        <div class="role-info-text">
+                            <h4>2. Parking Staff Portal</h4>
+                            <p>Approve requests, allot slots & verify Entry/Exit QR scans.</p>
+                        </div>
+                    </div>
+
+                    <div class="role-option-card" onclick="selectRole('admin')">
+                        <div class="role-icon-box admin"><i class="fa-solid fa-user-gear"></i></div>
+                        <div class="role-info-text">
+                            <h4>3. Admin / Mall Owner Portal</h4>
+                            <p>Live telemetry, master audit log & register traffic staff.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: CUSTOMER AUTH (LOGIN / SIGN UP TABS) -->
+        <div id="screen-user-auth" class="screen-view auth-wrapper">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title brand-font" id="user-auth-title">CUSTOMER PORTAL</h1>
+                    <p class="auth-subtitle" id="user-auth-subtitle">Sign in or create your account</p>
+                </div>
+
+                <!-- Mode Switch Tabs -->
+                <div class="auth-nav-tabs">
+                    <button type="button" id="tab-user-login" class="auth-nav-tab active" onclick="setUserAuthMode('login')">
+                        <i class="fa-solid fa-right-to-bracket"></i> Login
+                    </button>
+                    <button type="button" id="tab-user-signup" class="auth-nav-tab" onclick="setUserAuthMode('signup')">
+                        <i class="fa-solid fa-user-plus"></i> Sign Up
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="form-user-login" onsubmit="handleCustomerLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" id="cust-login-username" class="form-control" placeholder="Enter username (e.g. alex)" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="cust-login-password" class="form-control" placeholder="Enter password (e.g. alex123)" required autocomplete="current-password">
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-smooth btn-outline" style="width: 35%;" onclick="showScreen('screen-role-select')">Back</button>
+                        <button type="submit" class="btn-smooth btn-mint" style="width: 65%;">Login <i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="form-user-signup" onsubmit="handleCustomerSignup(event)" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Unique Username</label>
+                        <input type="text" id="cust-signup-username" class="form-control" placeholder="Choose unique username" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Create Password</label>
+                        <input type="password" id="cust-signup-password" class="form-control" placeholder="Create strong password" required minlength="4" autocomplete="new-password">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="cust-signup-confirm" class="form-control" placeholder="Confirm password" required minlength="4" autocomplete="new-password">
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-smooth btn-outline" style="width: 35%;" onclick="showScreen('screen-role-select')">Back</button>
+                        <button type="submit" class="btn-smooth btn-mint" style="width: 65%;">Create Account <i class="fa-solid fa-check"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: TRAFFIC STAFF LOGIN (LOGIN ONLY - NO SIGNUP) -->
+        <div id="screen-staff-auth" class="screen-view auth-wrapper">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title brand-font">TRAFFIC STAFF LOGIN</h1>
+                    <p class="auth-subtitle">Authorized personnel only</p>
+                </div>
+
+                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.75rem; border-radius: var(--radius-md); text-align: center; font-size: 0.82rem; color: #10b981; margin-bottom: 1.25rem;">
+                    <i class="fa-solid fa-shield-halved"></i> Staff accounts are registered by Admin in the Admin Portal.
+                </div>
+
+                <form onsubmit="handleStaffLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Staff Username</label>
+                        <input type="text" id="staff-login-username" class="form-control" placeholder="e.g. officer1" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Staff Password</label>
+                        <input type="password" id="staff-login-password" class="form-control" placeholder="e.g. staff123" required autocomplete="current-password">
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-smooth btn-outline" style="width: 35%;" onclick="showScreen('screen-role-select')">Back</button>
+                        <button type="submit" class="btn-smooth btn-mint" style="width: 65%;">Staff Access <i class="fa-solid fa-right-to-bracket"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: ADMIN LOGIN -->
+        <div id="screen-admin-auth" class="screen-view auth-wrapper">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1 class="auth-title brand-font">ADMIN PORTAL LOGIN</h1>
+                    <p class="auth-subtitle">Sign in to control dashboard and manage staff</p>
+                </div>
+
+                <form onsubmit="handleAdminLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Admin Username</label>
+                        <input type="text" id="admin-login-username" class="form-control" placeholder="admin" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label class="form-label">Admin Password</label>
+                        <input type="password" id="admin-login-password" class="form-control" placeholder="admin123" required autocomplete="current-password">
+                    </div>
+
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-smooth btn-outline" style="width: 35%;" onclick="showScreen('screen-role-select')">Back</button>
+                        <button type="submit" class="btn-smooth btn-red" style="width: 65%;">Admin Access <i class="fa-solid fa-unlock-keyhole"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PORTAL 1: CUSTOMER PARKING PORTAL -->
+        <div id="portal-customer" class="screen-view">
+            <div class="portal-banner">
+                <div>
+                    <h2 class="brand-font">CUSTOMER PARKING PORTAL</h2>
+                    <p>Request parking, track your unique digital QR pass from approval to vehicle exit, and pay online.</p>
+                </div>
+                <div class="banner-icon" style="color: var(--accent-mint);"><i id="portal-vehicle-icon" class="fa-solid fa-car-side"></i></div>
+            </div>
+
+            <div class="grid-2">
+                <!-- Left Column: Available Floor Matrix -->
+                <div class="card">
+                    <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><i class="fa-solid fa-border-all"></i> Available Floor Matrix</span>
+                        <button class="btn-smooth btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="fetchSlots()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem;">Real-time slot occupancy synced with the garage backend database.</p>
+                    <div class="slots-matrix" id="customer-slots-grid" style="margin-top: 1.25rem;"></div>
+                </div>
+
+                <!-- Right Column: Request Parking OR Active Session Card -->
+                <div class="card">
+                    <!-- State A: Form when user has no active session -->
+                    <div id="customer-request-form-box">
+                        <div class="card-title"><i class="fa-solid fa-ticket"></i> Request Parking Space</div>
+                        <form onsubmit="handleCustomerParkingRequest(event)" style="margin-top: 1.25rem;">
+                            <!-- Vehicle Selection Switch -->
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Category & Dynamic Tariff</label>
+                                <div class="vehicle-type-switch">
+                                    <div class="vehicle-radio-btn active" id="btn-type-car" onclick="setInnerVehicleType('car')">
+                                        <i class="fa-solid fa-car-side"></i> Car (₹30/hr)
+                                    </div>
+                                    <div class="vehicle-radio-btn" id="btn-type-bike" onclick="setInnerVehicleType('bike')">
+                                        <i class="fa-solid fa-motorcycle"></i> Bike (₹15/hr)
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Vehicle Registration Number</label>
+                                <input type="text" id="cust-vehicle-no" class="form-control" placeholder="e.g. MH 02 AB 1234" style="text-transform: uppercase;" required>
+                            </div>
+
+                            <button type="submit" class="btn-smooth btn-red" style="width: 100%;">
+                                <i class="fa-solid fa-paper-plane"></i> Submit Request & Generate QR
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- State B: Active Session Pass & QR Display -->
+                    <div id="customer-active-session-box" style="display: none;">
+                        <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span><i class="fa-solid fa-qrcode"></i> Your Active Parking QR Pass</span>
+                            <span id="cust-active-status-pill" class="status-pill pending">Pending Approval</span>
+                        </div>
+
+                        <!-- Workflow Guidance -->
+                        <div id="cust-workflow-guide" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; margin-top: 1rem;"></div>
+
+                        <div class="ticket-card" style="margin-top: 1.25rem;">
+                            <div class="qr-frame" id="cust-active-qr-target" style="margin: 0 auto 1.25rem; background: white; padding: 12px; border-radius: 12px; display: inline-block;"></div>
+                            <div class="ticket-details">
+                                <div class="ticket-row"><span class="label">Session / QR ID:</span><span class="val"><code id="cust-active-token">---</code></span></div>
+                                <div class="ticket-row"><span class="label">Vehicle Details:</span><span class="val" id="cust-active-vehicle">---</span></div>
+                                <div class="ticket-row"><span class="label">Allotted Location:</span><span class="val" id="cust-active-slot" style="color: var(--accent-mint); font-size: 1.1rem;">Pending</span></div>
+                                <div class="ticket-row"><span class="label">Applicable Tariff:</span><span class="val" id="cust-active-rate">₹30/hr</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Past Sessions Table -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> My Parking History</div>
+                <div class="table-responsive" style="margin-top: 1.25rem;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Vehicle</th>
+                                <th>Slot</th>
+                                <th>Duration</th>
+                                <th>Fare</th>
+                                <th>Status</th>
+                                <th>Digital Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cust-history-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PORTAL 2: TRAFFIC STAFF VIEW -->
+        <div id="portal-staff" class="screen-view">
+            <div class="portal-banner">
+                <div>
+                    <h2 class="brand-font">TRAFFIC STAFF DASHBOARD</h2>
+                    <p>Process incoming parking requests, assign available bays, and verify Entry/Exit QR passes.</p>
+                </div>
+                <div class="banner-icon" style="color: var(--accent-red);"><i class="fa-solid fa-user-shield"></i></div>
+            </div>
+
+            <!-- Top Grid: QR Camera Scanner & Barrier Clearance -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title"><i class="fa-solid fa-camera"></i> Live Pass Scanner</div>
+                    <div class="scanner-container" style="margin-top: 1rem;">
+                        <div id="staff-scanner-view"></div>
+                    </div>
+                    <div style="margin-top: 1.25rem; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; max-width: 360px; margin: 0 auto;">
+                            <input type="text" id="staff-manual-input" class="form-control" placeholder="Token e.g. PRK-XXXXXX">
+                            <button class="btn-smooth btn-outline" onclick="staffVerifyToken(document.getElementById('staff-manual-input').value.trim())">Verify</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fa-solid fa-shield-halved"></i> Barrier Clearance & Pass Inspector</div>
+                    <div id="staff-empty-msg" style="text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-qrcode" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.75rem;"></i>
+                        <p>Scan a customer QR code pass or enter its Session ID to inspect or clear barrier.</p>
+                    </div>
+
+                    <div id="staff-action-content" style="display: none; margin-top: 1rem;">
+                        <div class="ticket-details" style="margin-bottom: 1.25rem;">
+                            <div class="ticket-row"><span class="label">Session ID:</span><span class="val"><code id="stf-res-token">---</code></span></div>
+                            <div class="ticket-row"><span class="label">Vehicle:</span><span class="val" id="stf-res-vehicle">---</span></div>
+                            <div class="ticket-row"><span class="label">Allotted Slot:</span><span class="val" id="stf-res-slot">---</span></div>
+                            <div class="ticket-row"><span class="label">Current Status:</span><span class="val" id="stf-res-status">---</span></div>
+                            <div class="ticket-row" id="stf-fee-row" style="display: none;"><span class="label">Fare Amount:</span><span class="val" id="stf-res-fee" style="color: var(--accent-mint); font-size: 1.1rem;">₹0.00</span></div>
+                        </div>
+
+                        <button id="staff-gate-btn" class="btn-smooth btn-mint" style="width: 100%;">
+                            <i class="fa-solid fa-door-open"></i> Approve Action
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Incoming Requests Queue -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fa-solid fa-inbox"></i> Incoming Parking Requests (<span id="staff-incoming-count-badge">0</span>)</span>
+                    <button class="btn-smooth btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;" onclick="loadStaffPortalData()"><i class="fa-solid fa-rotate"></i> Refresh Queue</button>
+                </div>
+                <div class="table-responsive" style="margin-top: 1.25rem;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Customer</th>
+                                <th>Vehicle</th>
+                                <th>Assign Available Slot</th>
+                                <th>Request Time</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-incoming-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Active Sessions Overview -->
+            <div class="card" style="margin-top: 2rem;">
+                <div class="card-title"><i class="fa-solid fa-cars"></i> Active Parking Sessions in Lot</div>
+                <div class="table-responsive" style="margin-top: 1.25rem;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Slot</th>
+                                <th>Vehicle</th>
+                                <th>Workflow Status</th>
+                                <th>Entry Check-In</th>
+                                <th>Exit Check-Out</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-active-sessions-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PORTAL 3: ADMIN VIEW -->
+        <div id="portal-admin" class="screen-view">
+            <div class="portal-banner">
+                <div>
+                    <h2 class="brand-font">ADMINISTRATOR DASHBOARD</h2>
+                    <p>Real-time slot telemetry, revenue analytics, staff administration, and master parking logs.</p>
+                </div>
+                <div class="banner-icon" style="color: var(--accent-mint);"><i class="fa-solid fa-chart-line"></i></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon mint"><i class="fa-solid fa-square-check"></i></div>
+                    <div><h3 id="adm-avail-count">0</h3><p style="color: var(--text-muted); font-size: 0.8rem;">Available Slots</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red"><i class="fa-solid fa-car-side"></i></div>
+                    <div><h3 id="adm-occup-count">0</h3><p style="color: var(--text-muted); font-size: 0.8rem;">Occupied / Reserved</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon mint"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <div><h3 id="adm-rev-count">₹0.00</h3><p style="color: var(--text-muted); font-size: 0.8rem;">Total Revenue Collected</p></div>
+                </div>
+            </div>
+
+            <!-- Admin Traffic Staff Management -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><i class="fa-solid fa-user-shield"></i> Traffic Staff Management</span>
+                    <span style="font-size: 0.8rem; color: var(--accent-mint); font-weight: 600;">Admin Authorized Only</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                    Register new traffic staff credentials here. Staff members cannot create accounts independently and must log in using the credentials generated below.
+                </p>
+
+                <!-- Registration Form -->
+                <form id="admin-create-staff-form" onsubmit="handleAdminCreateStaff(event)" style="margin-top: 1.25rem; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 0.8rem; align-items: end;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Staff Full Name</label>
+                        <input type="text" id="new-staff-name" class="form-control" placeholder="e.g. Officer John" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Unique Staff Username</label>
+                        <input type="text" id="new-staff-user" class="form-control" placeholder="e.g. officer2" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Assigned Password</label>
+                        <input type="password" id="new-staff-pass" class="form-control" placeholder="Temporary password" required minlength="4">
+                    </div>
+                    <div>
+                        <button type="submit" class="btn-smooth btn-mint" style="padding: 0.75rem 1.25rem; white-space: nowrap;">
+                            <i class="fa-solid fa-user-plus"></i> Register Staff
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Registered Staff Table -->
+                <div class="table-responsive" style="margin-top: 1.25rem;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Staff Name</th>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th>Created On</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-staff-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Master Parking Log -->
+            <div class="card" style="margin-top: 1.5rem;">
+                <div class="card-title"><i class="fa-solid fa-table"></i> Master Parking Log & Audit Trail</div>
+                <div class="table-responsive" style="margin-top: 1.25rem;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>User</th>
+                                <th>Vehicle</th>
+                                <th>Slot</th>
+                                <th>Workflow Status</th>
+                                <th>Duration</th>
+                                <th>Final Fare</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-ledger-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Payment Screen -->
+    <div class="modal-overlay" id="payment-modal-overlay">
+        <div class="modal-dialog">
+            <button class="modal-close-btn" onclick="closePaymentModal()">&times;</button>
+            <h3 class="brand-font" style="color: var(--accent-mint);"><i class="fa-solid fa-credit-card"></i> Parking Checkout</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem;">Review your dynamic fare breakdown and complete payment.</p>
+
+            <div class="receipt-card">
+                <div class="receipt-row"><span style="color: var(--text-muted);">Session ID:</span><code id="pay-modal-token">---</code></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Vehicle:</span><span id="pay-modal-vehicle">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Parking Bay:</span><span id="pay-modal-slot">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Entry Time:</span><span id="pay-modal-entry">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Exit Time:</span><span id="pay-modal-exit">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Total Duration:</span><span id="pay-modal-duration">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Hourly Tariff:</span><span id="pay-modal-rate">---</span></div>
+                <div class="receipt-row total"><span>Total Payable:</span><span id="pay-modal-total" style="color: var(--accent-mint);">₹0.00</span></div>
+            </div>
+
+            <form onsubmit="processPayment(event)">
+                <div class="form-group">
+                    <label class="form-label">Pay via UPI / VPA</label>
+                    <input type="text" id="pay-upi-id" class="form-control" placeholder="user@okhdfcbank" value="user@upi" required>
+                </div>
+                <button type="submit" class="btn-smooth btn-mint" style="width: 100%;">
+                    <i class="fa-solid fa-lock"></i> Authorize & Pay Online
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Digital Payment Receipt -->
+    <div class="modal-overlay" id="receipt-modal-overlay">
+        <div class="modal-dialog">
+            <button class="modal-close-btn" onclick="closeReceiptModal()">&times;</button>
+            <div class="receipt-header">
+                <i class="fa-solid fa-circle-check" style="font-size: 2.5rem; color: #10b981;"></i>
+                <h3 class="brand-font" style="margin-top: 0.5rem;">PARKQR DIGITAL RECEIPT</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Parking space released & session completed</p>
+            </div>
+
+            <div class="receipt-card" style="border-style: solid;">
+                <div class="receipt-row"><span style="color: var(--text-muted);">Session Token:</span><code id="rcpt-token">---</code></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Payment Ref:</span><code id="rcpt-ref" style="color: var(--accent-mint);">---</code></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Paid At:</span><span id="rcpt-time">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Vehicle:</span><span id="rcpt-vehicle">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Parking Bay:</span><span id="rcpt-slot">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Duration:</span><span id="rcpt-duration">---</span></div>
+                <div class="receipt-row"><span style="color: var(--text-muted);">Tariff Rate:</span><span id="rcpt-rate">---</span></div>
+                <div class="receipt-row total"><span>Amount Paid:</span><span id="rcpt-total" style="color: var(--accent-mint);">₹0.00</span></div>
+            </div>
+
+            <button class="btn-smooth btn-outline" style="width: 100%;" onclick="closeReceiptModal()">
+                <i class="fa-solid fa-check"></i> Close Receipt
+            </button>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-wrapper"></div>
+
+    <!-- Modular Application Logic -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/state.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/customer.js"></script>
+    <script src="assets/js/staff.js"></script>
+    <script src="assets/js/admin.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
