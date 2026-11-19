@@ -1,8 +1,8 @@
-\# ParkQR – QR Code Based Smart Parking Management System
+﻿# ParkQR – QR Code Based Smart Parking Management System
 
 
 
-\## About the Project
+## About the Project
 
 
 
@@ -10,7 +10,7 @@ ParkQR is a QR code-based smart parking management system designed to simplify a
 
 
 
-\## Problem Statement
+## Problem Statement
 
 
 
@@ -18,7 +18,7 @@ Traditional parking management systems often involve manual processes for vehicl
 
 
 
-\## Proposed Solution
+## Proposed Solution
 
 
 
@@ -26,7 +26,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## Key Features
+## Key Features
 
 
 
@@ -54,7 +54,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## Technology Stack
+## Technology Stack
 
 
 
@@ -70,7 +70,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## System Workflow
+## System Workflow
 
 
 
@@ -96,11 +96,11 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## Installation
+## Installation
 
 
 
-\### Prerequisites
+### Prerequisites
 
 \- Python 3.x
 
@@ -110,7 +110,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\### Setup
+### Setup
 
 
 
@@ -146,7 +146,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## Future Enhancements
+## Future Enhancements
 
 
 
@@ -162,7 +162,7 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 
-\## Project Information
+## Project Information
 
 
 
@@ -181,4 +181,5 @@ ParkQR provides a digital solution using unique QR codes. Customers can request 
 
 
 ParkQR – Making Parking Smarter, Simpler, and More Efficient.
+
 
