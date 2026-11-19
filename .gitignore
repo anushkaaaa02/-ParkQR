@@ -5,3 +5,5 @@ parking.db
 .env
 .venv/
 venv/
+
+__MACOSX/
